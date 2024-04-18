@@ -23,8 +23,39 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let contents = fs::read_to_string(config.file_path)
      .expect("Should have been able to read the file");
 
-    println!("With text:\n{contents}");
+    for line in search(&config.query, &contents) {
+      println!("{line}");
+    }
+   //  println!("With text:\n{contents}");
 
     Ok(())
 
+}
+
+
+pub fn search<'a>(query: &str, _contents: &'a str) -> Vec<&'a str> {
+  let mut result = Vec::new();  
+  for line in _contents.lines() {
+      if line.contains(query){
+        result.push(line);
+      }
+    }
+    result
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn one_result() {
+        let query = "duct";
+        let contents = "\
+Rust:
+safe, fast, productive.
+Pick three.";
+
+        assert_eq!(vec!["safe, fast, productive."], search(query, contents));
+    }
 }
