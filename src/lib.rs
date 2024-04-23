@@ -10,16 +10,41 @@ pub struct Config {
 }
 
 impl Config {
-  pub fn build(args: &[String]) -> Result<Config, &'static str> {
-        if args.len() < 3 {
-            return Err("not enough arguments");
-        }
-        let ignore_case = env::var("IGNORE_CASE").is_ok();
+  // build function with closure
+  pub fn build (args: impl Iterator<Item = String>) -> Result<Config, & `static str> {
+      args.next();
 
-        let query = args[1].clone();
-        let file_path = args[2].clone();
-        Ok(Config { query, file_path, ignore_case })
-    }
+      let query = match args.next() {
+        Some(arg) => arg,
+        None => return Err("Didn't get the query string")
+      };
+
+      let file_path = match args.next() {
+        Some(arg) => arg,
+        None => return Err("Didn't get a file path")
+      };
+
+      let ignore_case = env::var("IGNORE_CASE").is_ok();
+
+      Ok(Config {
+        query,
+        file_path,
+        ignore_case
+      })
+  }
+  // replace args: &[String]) with mut args: impl Iterator<Item = String>
+  // pub fn build(args: &[String]) -> Result<Config, &'static str> {
+        
+  //       if args.len() < 3 {
+  //           return Err("not enough arguments");
+  //       }
+
+  //       let ignore_case = env::var("IGNORE_CASE").is_ok();
+
+  //       let query = args[1].clone();
+  //       let file_path = args[2].clone();
+  //       Ok(Config { query, file_path, ignore_case })
+  //   }
 }
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
@@ -43,14 +68,22 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
 }
 
 
-pub fn search<'a>(query: &str, _contents: &'a str) -> Vec<&'a str> {
-  let mut result = Vec::new();  
-  for line in _contents.lines() {
-      if line.contains(query){
-        result.push(line);
-      }
-    }
-    result
+// pub fn search<'a>(query: &str, _contents: &'a str) -> Vec<&'a str> {
+//   let mut result = Vec::new();  
+//   for line in _contents.lines() {
+//       if line.contains(query){
+//         result.push(line);
+//       }
+//     }
+//     result
+// }
+
+
+pub fn search<`a>(query: &str, contents: &`a str) -> Vec<&`a str> {
+  contents
+    .lines()
+    .filter(|line| line.contains(query))
+    .collect()
 }
 
 pub fn search_case_insensitive<'a>(
